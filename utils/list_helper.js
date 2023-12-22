@@ -34,11 +34,22 @@ const productiveAuthor = (blogs) => {
   return realMostProductiveAuthor
 }
 
+const favoriteAuthor = (blogs) => {
+  const blogsByAuthor = _.groupBy(blogs, 'author')
+  const favoriteAuthor = _.maxBy(Object.keys(blogsByAuthor), author => _.sumBy(blogsByAuthor[author], 'likes'))
+  const totalLikes = _.sumBy(blogsByAuthor[favoriteAuthor], 'likes')
+  const realFavoriteAuthor = {
+    author: favoriteAuthor,
+    likes: totalLikes
+  }
+  return realFavoriteAuthor
+}
 
 module.exports = {
   dummy,
   totalLikes,
   mostLikes,
-  productiveAuthor
+  productiveAuthor,
+  favoriteAuthor
 }
 
