@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const Blog = require('../models/blog')
 const blogs = Blog.find({})
 
@@ -22,9 +23,22 @@ const mostLikes = (blogs) => {
   return realReturnedBlog
 }
 
+const productiveAuthor = (blogs) => {
+  const blogsByAuthor = _.groupBy(blogs, 'author')
+  const mostProductiveAuthor = _.maxBy(Object.keys(blogsByAuthor), author => blogsByAuthor[author].length)
+  const realMostProductiveAuthor = {
+    author: mostProductiveAuthor,
+    blogs: blogsByAuthor[mostProductiveAuthor].length
+  }
+  
+  return realMostProductiveAuthor
+}
+
+
 module.exports = {
   dummy,
   totalLikes,
-  mostLikes
+  mostLikes,
+  productiveAuthor
 }
 
