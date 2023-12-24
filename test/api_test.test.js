@@ -25,6 +25,17 @@ test('all notes are returned', async () => {
   expect(response.body).toHaveLength(helper.initialBlog.length)
 })
 
+test('all blogs have id property instead of _id', async () => {
+    const response = await api.get('/api/blogs')
+    const blogs = response.body
+  
+    blogs.forEach(blog => {
+      expect(blog.id).toBeDefined()
+      expect(blog._id).toBeUndefined()
+    })
+  })
+  
+
 /* test('a specific note is within the returned notes', async () => {
   const response = await api.get('/api/notes')
 
