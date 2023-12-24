@@ -33,7 +33,7 @@ blogsRouter.delete('/api/blogs/:id', async (request, response, next) => {
 
 blogsRouter.post('/api/blogs', async (request, response, next) => {
   const body = request.body
-  if (!body.title || !body.author || !body.url || !body.likes) {
+  if (!body.title || !body.author || !body.url) {
     return response.status(400).json({ error: 'Required fields are missing' })
   }
 

@@ -59,6 +59,24 @@ test('a valid blog can be added, and the number of blogs increases ', async () =
   )
 })
 
+test('a blog which lacks likes is still valid and its likes will be 0', async () => {
+  const newBlog = {
+    title: "Cloud computing",
+    author: "Tungdt",
+    url: "https://cloudcomputing.com/",
+    __v: 0
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const length = blogsAtEnd.length
+  expect(blogsAtEnd[length-1].likes).toEqual(0)
+})
 /*
 test('a specific note can be viewed', async () => {
   const notesAtStart = await helper.notesInDb()
