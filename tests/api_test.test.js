@@ -77,40 +77,34 @@ test('a blog which lacks likes is still valid and its likes will be 0', async ()
   const length = blogsAtEnd.length
   expect(blogsAtEnd[length-1].likes).toEqual(0)
 })
-/*
-test('a specific note can be viewed', async () => {
-  const notesAtStart = await helper.notesInDb()
 
-  const noteToView = notesAtStart[0]
-
-  const resultNote = await api
-    .get(`/api/notes/${noteToView.id}`)
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-
-  //const processedNoteToView = JSON.parse(JSON.stringify(noteToView))
-
-  expect(resultNote.body).toEqual(noteToView)
-})
-
-test('a note can be deleted', async () => {
-  const notesAtStart = await helper.notesInDb()
-  const noteToDelete = notesAtStart[0]
+test('a blog which lacks title cannot be created', async () => {
+  const newBlog = {
+    author: "Tungdt",
+    url: "https://cloudcomputing.com/",
+    __v: 0
+  }
 
   await api
-    .delete(`/api/notes/${noteToDelete.id}`)
-    .expect(204)
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+})
 
-  const notesAtEnd = await helper.notesInDb()
+test('a blog which lacks url cannot be created', async () => {
+  const newBlog = {
+    title: "cloud computing",
+    author: "Tungdt",
+    __v: 0
+  }
 
-  expect(notesAtEnd).toHaveLength(
-    helper.initialNotes.length - 1
-  )
-
-  const contents = notesAtEnd.map(r => r.content)
-
-  expect(contents).not.toContain(noteToDelete.content)
-}) */
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+})
 
 afterAll(async () => {
   await mongoose.connection.close()
