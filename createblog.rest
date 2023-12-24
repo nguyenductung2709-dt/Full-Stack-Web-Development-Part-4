@@ -1,9 +1,0 @@
-POST http://localhost:3000/api/blogs
-Content-type: application/json
-
-{   
-  "title": "Harry Potter",
-  "author": "J.K.Rowling",
-  "url": "harrypotter",
-  "likes": 1000
-}
