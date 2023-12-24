@@ -12,6 +12,7 @@ beforeEach(async () => {
   await Blog.insertMany(helper.initialBlog)
 })
 
+describe('Test GET methods', () => {
 test('blogs are returned as json', async () => {
   await api
     .get('/api/blogs')
@@ -34,7 +35,9 @@ test('all blogs have id property instead of _id', async () => {
       expect(blog._id).toBeUndefined()
     })
   })
-  
+})
+
+describe('Test POST methods', () => {
 test('a valid blog can be added, and the number of blogs increases ', async () => {
   const newBlog = {
     title: "Cloud computing",
@@ -105,7 +108,10 @@ test('a blog which lacks url cannot be created', async () => {
     .expect(400)
     .expect('Content-Type', /application\/json/)
 })
+})
 
+
+describe('Test DELETE methods', () => {
 test('a blog can be deleted', async () => {
   const blogsAtStart = await helper.blogsInDb()
   const blogToDelete = blogsAtStart[0]
@@ -124,6 +130,29 @@ test('a blog can be deleted', async () => {
 
   expect(titles).not.toContain(blogToDelete.title)
 })
+})
+
+describe('TEST UPDATE methods', () => {
+test('a blog can be updated', async() => {
+  const newBlog = {
+    title: "cloud computing",
+    author: "Tungdt",
+    likes: 1000,
+    __v: 0
+  }
+
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(newBlog)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const likes = blogsAtEnd.map(r => r.likes)
+  expect(likes).toContain(newBlog.likes)
+})
+})
+
 
 afterAll(async () => {
   await mongoose.connection.close()
