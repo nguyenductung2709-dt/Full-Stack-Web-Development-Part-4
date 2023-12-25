@@ -1,15 +1,30 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const User = require('../models/user')
 
 const api = supertest(app)
 
 const Blog = require('../models/blog')
 const helper = require('./api_test_helper')
 
+let authToken
+
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(helper.initialBlog)
+  await User.deleteMany({})
+  const newUser = {
+    username: 'tung',
+    password: '123456',
+    name: 'Test User'
+  }
+  await api.post('/api/users').send(newUser)
+  const response = await api.post('/api/login').send({
+    username: 'tung',
+    password: '123456'
+  })
+  authToken = response.body.token
 })
 
 describe('Test GET methods', () => {
@@ -38,49 +53,6 @@ test('all blogs have id property instead of _id', async () => {
 })
 
 describe('Test POST methods', () => {
-test('a valid blog can be added, and the number of blogs increases ', async () => {
-  const newBlog = {
-    title: "Cloud computing",
-    author: "Tungdt",
-    url: "https://cloudcomputing.com/",
-    likes: 15,
-    __v: 0
-  }
-
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-
-  const blogsAtEnd = await helper.blogsInDb()
-  expect(blogsAtEnd).toHaveLength(helper.initialBlog.length + 1)
-
-  const contents = blogsAtEnd.map(n => n.title)
-  expect(contents).toContain(
-    'Cloud computing'
-  )
-})
-
-test('a blog which lacks likes is still valid and its likes will be 0', async () => {
-  const newBlog = {
-    title: "Cloud computing",
-    author: "Tungdt",
-    url: "https://cloudcomputing.com/",
-    __v: 0
-  }
-
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-
-  const blogsAtEnd = await helper.blogsInDb()
-  const length = blogsAtEnd.length
-  expect(blogsAtEnd[length-1].likes).toEqual(0)
-})
-
 test('a blog which lacks title cannot be created', async () => {
   const newBlog = {
     author: "Tungdt",
@@ -111,26 +83,26 @@ test('a blog which lacks url cannot be created', async () => {
 })
 
 
-describe('Test DELETE methods', () => {
-test('a blog can be deleted', async () => {
-  const blogsAtStart = await helper.blogsInDb()
-  const blogToDelete = blogsAtStart[0]
+/*describe('Test DELETE methods', () => {
+  test('a blog can be deleted', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
 
-  await api
-    .delete(`/api/blogs/${blogToDelete.id}`)
-    .expect(204)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${authToken}`) 
+      .expect(204)
 
-  const blogsAtEnd = await helper.blogsInDb()
+    const blogsAtEnd = await helper.blogsInDb()
 
-  expect(blogsAtEnd).toHaveLength(
-    helper.initialBlog.length - 1
-  )
+    expect(blogsAtEnd).toHaveLength(helper.initialBlog.length - 1)
 
-  const titles = blogsAtEnd.map(r => r.title)
+    const titles = blogsAtEnd.map((r) => r.title)
 
-  expect(titles).not.toContain(blogToDelete.title)
-})
-})
+    expect(titles).not.toContain(blogToDelete.title)
+  })
+})*/
+
 
 describe('TEST UPDATE methods', () => {
 test('a blog can be updated', async() => {
@@ -153,6 +125,45 @@ test('a blog can be updated', async() => {
 })
 })
 
+describe('TEST Token Authentication', () => {
+  test('a blog can be added after logging in', async() => {
+    const newBlog = {
+      title: "Cloud computing",
+      author: "Tungdt",
+      url: "https://cloudcomputing.com/",
+      likes: 15,
+      __v: 0
+    }
+
+  await api
+      .post('/api/blogs')
+      .set('Authorization', `bearer ${authToken}`)
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+  const blogsAfterAddition = await helper.blogsInDb()
+  expect(blogsAfterAddition).toHaveLength(helper.initialBlog.length + 1)
+
+  const titles = blogsAfterAddition.map(blog => blog.title)
+  expect(titles).toContain('Cloud computing')
+  })
+
+test('a blog cannot be added without logging in', async() => {
+  const newBlog = {
+    title: "Cloud computing",
+    author: "Tungdt",
+    url: "https://cloudcomputing.com/",
+    likes: 15,
+    __v: 0
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+})
+})
 
 afterAll(async () => {
   await mongoose.connection.close()

@@ -57,44 +57,39 @@ blogsRouter.delete('/api/blogs/:id', async (request, response, next) => {
 
 
 blogsRouter.post('/api/blogs', async (request, response, next) => {
-  const body = request.body
+  const body = request.body;
 
   if (!body.title || !body.author || !body.url) {
-    return response.status(400).json({ error: 'Required fields are missing' })
+    return response.status(400).json({ error: 'Required fields are missing' });
   }
-  console.log(request.token)
+
+  const user = request.user
+
+  if (!user) {
+    return response.status(401).json({ error: 'Unauthorized' })
+  }
+
+  const newBlog = new Blog({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: body.likes || 0,
+    user: user._id
+  });
+
   try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-    if (!decodedToken || !decodedToken.id) {
-      return response.status(401).json({ error: 'Invalid or missing token' })
-    }
-
-    const user = request.user
-
-    if (!user) {
-      return response.status(404).json({ error: 'User not found' })
-    }
-
-    const newBlog = new Blog({
-      title: body.title,
-      author: body.author,
-      url: body.url,
-      likes: body.likes || 0, // Assuming likes might be optional
-      user: user._id
-    })
-
     const savedBlog = await newBlog.save()
 
     user.blogs = user.blogs.concat(savedBlog._id)
-    await user.save() 
+    await user.save();
 
-    response.status(201).json(savedBlog)
+    return response.status(201).json(savedBlog)
   } catch (error) {
     console.error('Error creating blog:', error.message)
-    response.status(500).json({ error: 'Internal server error' })
+    return response.status(500).json({ error: 'Internal server error' })
   }
 })
+
 
 
 blogsRouter.put('/api/blogs/:id', async (request, response, next) => {
