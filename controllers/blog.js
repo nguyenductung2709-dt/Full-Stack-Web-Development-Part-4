@@ -3,10 +3,10 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
+const getTokenFrom = (request) => {
+  const authorization = request.headers.authorization;
+  if (authorization && authorization.startsWith('bearer ')) {
+    return authorization.replace('bearer ', '')
   }
   return null
 }
@@ -43,27 +43,44 @@ blogsRouter.delete('/api/blogs/:id', async (request, response, next) => {
 
 blogsRouter.post('/api/blogs', async (request, response, next) => {
   const body = request.body
+
   if (!body.title || !body.author || !body.url) {
     return response.status(400).json({ error: 'Required fields are missing' })
   }
 
-  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
+  try {
+    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
 
-  const newBlog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes,
-    user: user._id
-  })
-  const savedBlog = await newBlog.save()
-  user.blogs = user.blogs.concat(savedBlog._id)
-  response.status(201).json(savedBlog)
-})
+    if (!decodedToken || !decodedToken.id) {
+      return response.status(401).json({ error: 'Invalid or missing token' })
+    }
+
+    const user = await User.findById(decodedToken.id);
+
+    if (!user) {
+      return response.status(404).json({ error: 'User not found' });
+    }
+
+    const newBlog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes || 0, // Assuming likes might be optional
+      user: user._id
+    });
+
+    const savedBlog = await newBlog.save();
+
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save(); // Save the updated user with new blog ID
+
+    response.status(201).json(savedBlog);
+  } catch (error) {
+    console.error('Error creating blog:', error.message);
+    response.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 blogsRouter.put('/api/blogs/:id', async (request, response, next) => {
   const body = request.body
