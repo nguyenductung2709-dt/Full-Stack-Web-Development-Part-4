@@ -168,3 +168,5 @@ test('a blog cannot be added without logging in', async() => {
 afterAll(async () => {
   await mongoose.connection.close()
 }) 
+
+/* --------------------------------*/
