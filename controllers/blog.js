@@ -1,5 +1,15 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
 
 blogsRouter.get('/', async (request, response, next) => {
   const allBlogs = await Blog.find({})
@@ -13,7 +23,7 @@ blogsRouter.get('/', async (request, response, next) => {
 })
 
 blogsRouter.get('/api/blogs', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   response.json(blogs)
 })
 
@@ -37,13 +47,21 @@ blogsRouter.post('/api/blogs', async (request, response, next) => {
     return response.status(400).json({ error: 'Required fields are missing' })
   }
 
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+
   const newBlog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes
+    likes: body.likes,
+    user: user._id
   })
   const savedBlog = await newBlog.save()
+  user.blogs = user.blogs.concat(savedBlog._id)
   response.status(201).json(savedBlog)
 })
 

@@ -1,5 +1,6 @@
 POST http://localhost:3000/api/blogs
-Content-type: application/json
+Content-Type: application/json
+Authorization: bearer yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5kdDI3MDkwNSIsImlkIjoiNjU4OWFhYjlkNWY4MjI1MGRhY2IzZWVjIiwiaWF0IjoxNzAzNTIxNzMzLCJleHAiOjE3MDM1MjUzMzN9.SBVUVJSnylG-PpS_GZcLy3jAo80D8wbAqSX5TpMQ9pk
 
 {   
   "title": "Harry Potter",
