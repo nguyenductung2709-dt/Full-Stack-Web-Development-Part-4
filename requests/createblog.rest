@@ -1,6 +1,6 @@
 POST http://localhost:3000/api/blogs
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5kdDI3MDkwNSIsImlkIjoiNjU4OWFhYjlkNWY4MjI1MGRhY2IzZWVjIiwiaWF0IjoxNzAzNTIyMDU0LCJleHAiOjE3MDM1MjU2NTR9.JAp8j29YCa_RaebwoherTFCCMKi1PiALLRGU6yqoQNk
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5kdDI3MDkwNSIsImlkIjoiNjU4OWFhYjlkNWY4MjI1MGRhY2IzZWVjIiwiaWF0IjoxNzAzNTM3NTYyLCJleHAiOjE3MDM1NDExNjJ9.65QTr7FnJ7kKICBsp4k34vBi_4CLP4Bk-8zBRnfeTQ8
 
 {   
   "title": "Harry Potter",

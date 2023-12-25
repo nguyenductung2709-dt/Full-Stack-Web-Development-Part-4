@@ -3,13 +3,13 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-const getTokenFrom = (request) => {
-  const authorization = request.headers.authorization;
+/*const getTokenFrom = (request) => {
+  const authorization = request.headers.authorization
   if (authorization && authorization.startsWith('bearer ')) {
     return authorization.replace('bearer ', '')
   }
   return null
-}
+}*/
 
 blogsRouter.get('/', async (request, response, next) => {
   const allBlogs = await Blog.find({})
@@ -47,9 +47,9 @@ blogsRouter.post('/api/blogs', async (request, response, next) => {
   if (!body.title || !body.author || !body.url) {
     return response.status(400).json({ error: 'Required fields are missing' })
   }
-
+  console.log(request.token)
   try {
-    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
     if (!decodedToken || !decodedToken.id) {
       return response.status(401).json({ error: 'Invalid or missing token' })
@@ -69,17 +69,17 @@ blogsRouter.post('/api/blogs', async (request, response, next) => {
       user: user._id
     });
 
-    const savedBlog = await newBlog.save();
+    const savedBlog = await newBlog.save()
 
-    user.blogs = user.blogs.concat(savedBlog._id);
-    await user.save(); // Save the updated user with new blog ID
+    user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save() // Save the updated user with new blog ID
 
-    response.status(201).json(savedBlog);
+    response.status(201).json(savedBlog)
   } catch (error) {
-    console.error('Error creating blog:', error.message);
-    response.status(500).json({ error: 'Internal server error' });
+    console.error('Error creating blog:', error.message)
+    response.status(500).json({ error: 'Internal server error' })
   }
-});
+})
 
 
 blogsRouter.put('/api/blogs/:id', async (request, response, next) => {
