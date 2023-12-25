@@ -3,14 +3,6 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-/*const getTokenFrom = (request) => {
-  const authorization = request.headers.authorization
-  if (authorization && authorization.startsWith('bearer ')) {
-    return authorization.replace('bearer ', '')
-  }
-  return null
-}*/
-
 blogsRouter.get('/', async (request, response, next) => {
   const allBlogs = await Blog.find({})
   let htmlResponse = '<h1>All Blogs</h1>'
@@ -78,10 +70,10 @@ blogsRouter.post('/api/blogs', async (request, response, next) => {
       return response.status(401).json({ error: 'Invalid or missing token' })
     }
 
-    const user = await User.findById(decodedToken.id);
+    const user = request.user
 
     if (!user) {
-      return response.status(404).json({ error: 'User not found' });
+      return response.status(404).json({ error: 'User not found' })
     }
 
     const newBlog = new Blog({
@@ -90,12 +82,12 @@ blogsRouter.post('/api/blogs', async (request, response, next) => {
       url: body.url,
       likes: body.likes || 0, // Assuming likes might be optional
       user: user._id
-    });
+    })
 
     const savedBlog = await newBlog.save()
 
     user.blogs = user.blogs.concat(savedBlog._id)
-    await user.save() // Save the updated user with new blog ID
+    await user.save() 
 
     response.status(201).json(savedBlog)
   } catch (error) {
