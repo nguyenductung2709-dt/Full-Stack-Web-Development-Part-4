@@ -3,23 +3,12 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-blogsRouter.get('/', async (request, response, next) => {
-  const allBlogs = await Blog.find({})
-  let htmlResponse = '<h1>All Blogs</h1>'
-  htmlResponse += '<ul>'
-  allBlogs.forEach(blog => {
-  htmlResponse += `<li>Title: ${blog.title}, Author: ${blog.author}, Likes: ${blog.likes}</li>`
-  })
-  htmlResponse += '</ul>'
-  response.send(htmlResponse)
-})
-
-blogsRouter.get('/api/blogs', async (request, response) => {
+blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   response.json(blogs)
 })
 
-blogsRouter.get('/api/blogs/:id', async (request, response) => {
+blogsRouter.get('/:id', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
   if (blog) {
     response.json(blog)
@@ -28,7 +17,7 @@ blogsRouter.get('/api/blogs/:id', async (request, response) => {
   }
 })
 
-blogsRouter.delete('/api/blogs/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', async (request, response, next) => {
   const token = request.token
 
   if (!token) {
@@ -56,7 +45,7 @@ blogsRouter.delete('/api/blogs/:id', async (request, response, next) => {
 })
 
 
-blogsRouter.post('/api/blogs', async (request, response, next) => {
+blogsRouter.post('/', async (request, response, next) => {
   const body = request.body;
 
   if (!body.title || !body.author || !body.url) {
@@ -92,7 +81,7 @@ blogsRouter.post('/api/blogs', async (request, response, next) => {
 
 
 
-blogsRouter.put('/api/blogs/:id', async (request, response, next) => {
+blogsRouter.put('/:id', async (request, response, next) => {
   const body = request.body
 
   const blog = {
