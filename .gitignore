@@ -1,2 +1,3 @@
-.env
-node_modules
+/bloglist-backend/.env
+/bloglist-backend/node_modules
+/bloglist-frontend/
