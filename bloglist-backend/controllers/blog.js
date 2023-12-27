@@ -17,7 +17,7 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', async (request, response) => {
   const token = request.token
 
   if (!token) {
@@ -45,8 +45,8 @@ blogsRouter.delete('/:id', async (request, response, next) => {
 })
 
 
-blogsRouter.post('/', async (request, response, next) => {
-  const body = request.body;
+blogsRouter.post('/', async (request, response) => {
+  const body = request.body
 
   if (!body.title || !body.author || !body.url) {
     return response.status(400).json({ error: 'Required fields are missing' });
@@ -70,7 +70,7 @@ blogsRouter.post('/', async (request, response, next) => {
     const savedBlog = await newBlog.save()
 
     user.blogs = user.blogs.concat(savedBlog._id)
-    await user.save();
+    await user.save()
 
     return response.status(201).json(savedBlog)
   } catch (error) {
@@ -81,7 +81,7 @@ blogsRouter.post('/', async (request, response, next) => {
 
 
 
-blogsRouter.put('/:id', async (request, response, next) => {
+blogsRouter.put('/:id', async (request, response) => {
   const body = request.body
 
   const blog = {
