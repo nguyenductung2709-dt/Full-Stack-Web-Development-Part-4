@@ -9,7 +9,7 @@
     "test": "NODE_ENV=test jest --verbose --runInBand",
     "build:ui": "rm -rf dist && cd ../bloglist-frontend/ && npm run build && cp -r dist ../bloglist-backend",
     "deploy": "fly deploy",
-    "deploy:full": "npm run build:ui && npm run deploy",    
+    "deploy:full": "npm run build:ui && npm run deploy",
     "logs:prod": "fly logs"
   },
   "repository": {
@@ -31,7 +31,8 @@
     "lodash": "^4.17.21",
     "mongoose": "^7.6.5",
     "mongoose-unique-validator": "^4.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "prop-types": "^15.8.1"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
