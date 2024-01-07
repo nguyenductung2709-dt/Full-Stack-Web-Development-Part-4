@@ -17,6 +17,43 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 })
 
+blogsRouter.get('/:id/comments', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+  if (blog) {
+    response.json(blog.comments)
+  } else {
+    response.status(404).end()
+  }
+})
+
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const body = request.body
+  const blogId = request.params.id
+
+  try {
+    const blog = await Blog.findById(blogId)
+    if (!blog) {
+      return response.status(404).json({ error: 'Blog not found' })
+    }
+
+    const { comment } = body
+
+    if (!comment) {
+      return response.status(400).json({ error: 'Comment content is missing' })
+    }
+
+    blog.comments.push(comment)
+    const updatedBlog = await blog.save()
+    response.status(201).json(updatedBlog)
+  } catch (error) {
+    console.error('Error adding comment:', error.message)
+    return response.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+
+
+
 blogsRouter.delete('/:id', async (request, response) => {
   const token = request.token
 
